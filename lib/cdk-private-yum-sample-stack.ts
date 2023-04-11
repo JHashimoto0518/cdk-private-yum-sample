@@ -77,31 +77,37 @@ export class CdkPrivateYumSampleStack extends Stack {
       "sh -c 'echo \"This is a sample website.\" > /var/www/html/index.html'",
     )
 
-    const targets: elbv2_tg.InstanceTarget[] = new Array(2)
-    for (let [i] of targets.entries()) {
-      targets[i] = new elbv2_tg.InstanceTarget(new ec2.Instance(this, `ec2-web-${i}`, {
-        instanceName: `ec2-web-${i}`,
-        instanceType: new ec2.InstanceType('t2.medium'),
-        machineImage: ec2.MachineImage.latestAmazonLinux({
-          generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-        }),
-        vpc: vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        }),
-        securityGroup: webServerSg,
-        blockDevices: [
-          {
-            deviceName: '/dev/xvda',
-            volume: ec2.BlockDeviceVolume.ebs(8, {
-              volumeType: ec2.EbsDeviceVolumeType.GP3,
+    // launch one instance per AZ
+    const targets: elbv2_tg.InstanceTarget[] = new Array();
+    for (let [idx, az] of vpc.availabilityZones.entries()) {
+      targets.push(
+        new elbv2_tg.InstanceTarget(
+          new ec2.Instance(this, `ec2-web-${idx++}`, {
+            instanceName: `ec2-web-${idx++}`, // ec2-web-1, ec2-web-2, ...
+            instanceType: new ec2.InstanceType('t2.medium'),
+            machineImage: ec2.MachineImage.latestAmazonLinux({
+              generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
             }),
-          },
-        ],
-        userData,
-        ssmSessionPermissions: true,
-        propagateTagsToVolumeOnCreation: true,
-      }));
+            vpc: vpc,
+            vpcSubnets: vpc.selectSubnets({
+              subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+            }),
+            availabilityZone: az,
+            securityGroup: webServerSg,
+            blockDevices: [
+              {
+                deviceName: '/dev/xvda',
+                volume: ec2.BlockDeviceVolume.ebs(8, {
+                  volumeType: ec2.EbsDeviceVolumeType.GP3,
+                }),
+              },
+            ],
+            userData,
+            ssmSessionPermissions: true,
+            propagateTagsToVolumeOnCreation: true,
+          })
+        )
+      );
     }
 
     //
