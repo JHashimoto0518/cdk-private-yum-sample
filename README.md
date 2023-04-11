@@ -1,5 +1,7 @@
 # cdk-private-yum-sample
 
-This is a sample of configuring the yum execution environment for an EC2 instance launched on a private subnet with CDK.
+This is a sample of using CDK to build a private endpoint for yum on EC2 instances.
 
-![diagram](./diagrams/private-yum.drawio.png)
+![diagram](./diagrams/http-traffic.png)
+
+![diagram](./diagrams/yum-traffic.png)
