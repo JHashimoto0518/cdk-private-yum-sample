@@ -27,7 +27,7 @@ export class CdkPrivateYumSampleStack extends Stack {
         }
       ],
     });
-    // add private endpoints for ssm
+    // add private endpoints for session manager
     vpc.addInterfaceEndpoint('ssm', {
       service: ec2.InterfaceVpcEndpointAwsService.SSM,
     });
