@@ -1,4 +1,4 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as elbv2_tg from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets'
@@ -129,6 +129,11 @@ export class CdkPrivateYumSampleStack extends Stack {
     albListener.addTargets('target-web-server', {
       targets,
       port: 80
+    })
+
+    // output test command
+    new CfnOutput(this, 'test-command', {
+      value: `curl http://${alb.loadBalancerDnsName}`
     })
   }
 }
