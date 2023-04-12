@@ -84,7 +84,7 @@ export class CdkPrivateYumSampleStack extends Stack {
         new elbv2_tg.InstanceTarget(
           new ec2.Instance(this, `ec2-web-${idx++}`, {
             instanceName: `ec2-web-${idx++}`, // ec2-web-1, ec2-web-2, ...
-            instanceType: new ec2.InstanceType('t2.medium'),
+            instanceType: new ec2.InstanceType('t2.micro'),
             machineImage: ec2.MachineImage.latestAmazonLinux({
               generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
             }),
