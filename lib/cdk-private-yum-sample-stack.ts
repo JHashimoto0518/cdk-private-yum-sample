@@ -37,7 +37,7 @@ export class CdkPrivateYumSampleStack extends Stack {
     vpc.addInterfaceEndpoint('ec2messages', {
       service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
     });
-    // add private endpoint for yum repository on s3
+    // add private endpoint for Amazon Linux repository on s3
     vpc.addGatewayEndpoint('s3', {
       service: ec2.GatewayVpcEndpointAwsService.S3,
       subnets: [
@@ -79,11 +79,12 @@ export class CdkPrivateYumSampleStack extends Stack {
 
     // launch one instance per AZ
     const targets: elbv2_tg.InstanceTarget[] = new Array();
-    for (let [idx, az] of vpc.availabilityZones.entries()) {
+    for (const [idx, az] of vpc.availabilityZones.entries()) {
+      const name = `ec2-web-${idx + 1}`;  // ec2-web-1, ec2-web-2, ...
       targets.push(
         new elbv2_tg.InstanceTarget(
-          new ec2.Instance(this, `ec2-web-${idx++}`, {
-            instanceName: `ec2-web-${idx++}`, // ec2-web-1, ec2-web-2, ...
+          new ec2.Instance(this, name, {
+            instanceName: name,
             instanceType: new ec2.InstanceType('t2.micro'),
             machineImage: ec2.MachineImage.latestAmazonLinux({
               generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
