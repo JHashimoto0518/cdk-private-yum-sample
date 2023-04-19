@@ -9,36 +9,37 @@ export class CdkPrivateYumSampleStack extends Stack {
     super(scope, id, props);
 
     // vpc
-    const vpc = new ec2.Vpc(this, 'vpc', {
-      vpcName: 'vpc',
+    const vpc = new ec2.Vpc(this, 'WebVpc', {
+      vpcName: 'web-vpc',
       ipAddresses: ec2.IpAddresses.cidr('172.16.0.0/16'),
       natGateways: 0,
       maxAzs: 2,
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: 'public',
+          name: 'Public',
           subnetType: ec2.SubnetType.PUBLIC
         },
         {
           cidrMask: 24,
-          name: 'private',
+          name: 'Private',
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED
         }
       ],
     });
+
     // add private endpoints for session manager
-    vpc.addInterfaceEndpoint('ssm', {
+    vpc.addInterfaceEndpoint('SsmEndpoint', {
       service: ec2.InterfaceVpcEndpointAwsService.SSM,
     });
-    vpc.addInterfaceEndpoint('ssmmessages', {
+    vpc.addInterfaceEndpoint('SsmMessagesEndpoint', {
       service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
     });
-    vpc.addInterfaceEndpoint('ec2messages', {
+    vpc.addInterfaceEndpoint('Ec2MessagesEndpoint', {
       service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
     });
     // add private endpoint for Amazon Linux repository on s3
-    vpc.addGatewayEndpoint('s3', {
+    vpc.addGatewayEndpoint('S3Endpoint', {
       service: ec2.GatewayVpcEndpointAwsService.S3,
       subnets: [
         { subnetType: ec2.SubnetType.PRIVATE_ISOLATED }
@@ -48,19 +49,19 @@ export class CdkPrivateYumSampleStack extends Stack {
     //
     // security groups
     //
-    const albSg = new ec2.SecurityGroup(this, 'alb-sg', {
+    const albSg = new ec2.SecurityGroup(this, 'AlbSg', {
       vpc,
       allowAllOutbound: true,
       description: 'security group for alb'
     })
     albSg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'allow http traffic from anyone')
 
-    const webServerSg = new ec2.SecurityGroup(this, 'web-server-sg', {
+    const ec2Sg = new ec2.SecurityGroup(this, 'WebEc2Sg', {
       vpc,
       allowAllOutbound: true,
       description: 'security group for a web server'
     })
-    webServerSg.connections.allowFrom(albSg, ec2.Port.tcp(80), 'allow http traffic from alb')
+    ec2Sg.connections.allowFrom(albSg, ec2.Port.tcp(80), 'allow http traffic from alb')
 
     //
     // web servers
@@ -77,24 +78,23 @@ export class CdkPrivateYumSampleStack extends Stack {
       "sh -c 'echo \"This is a sample website.\" > /var/www/html/index.html'",
     )
 
-    // launch one instance per AZ
+    // launch one instance per az
     const targets: elbv2_tg.InstanceTarget[] = new Array();
     for (const [idx, az] of vpc.availabilityZones.entries()) {
-      const name = `ec2-web-${idx + 1}`;  // ec2-web-1, ec2-web-2, ...
       targets.push(
         new elbv2_tg.InstanceTarget(
-          new ec2.Instance(this, name, {
-            instanceName: name,
+          new ec2.Instance(this, `WebEc2${idx + 1}`, {
+            instanceName: `web-ec2-${idx + 1}`,   // web-ec2-1, web-ec2-2, ...
             instanceType: new ec2.InstanceType('t2.micro'),
             machineImage: ec2.MachineImage.latestAmazonLinux({
               generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
             }),
-            vpc: vpc,
+            vpc,
             vpcSubnets: vpc.selectSubnets({
               subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
             }),
             availabilityZone: az,
-            securityGroup: webServerSg,
+            securityGroup: ec2Sg,
             blockDevices: [
               {
                 deviceName: '/dev/xvda',
@@ -114,7 +114,7 @@ export class CdkPrivateYumSampleStack extends Stack {
     //
     // alb
     //
-    const alb = new elbv2.ApplicationLoadBalancer(this, 'alb', {
+    const alb = new elbv2.ApplicationLoadBalancer(this, 'Alb', {
       internetFacing: true,
       vpc,
       vpcSubnets: {
@@ -123,17 +123,17 @@ export class CdkPrivateYumSampleStack extends Stack {
       securityGroup: albSg
     })
 
-    const albListener = alb.addListener('alb-http-listener', {
+    const listener = alb.addListener('HttpListener', {
       port: 80,
       protocol: elbv2.ApplicationProtocol.HTTP
     })
-    albListener.addTargets('target-web-server', {
+    listener.addTargets('WebEc2Target', {
       targets,
       port: 80
     })
 
     // output test command
-    new CfnOutput(this, 'test-command', {
+    new CfnOutput(this, 'TestCommand', {
       value: `curl http://${alb.loadBalancerDnsName}`
     })
   }
