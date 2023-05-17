@@ -75,7 +75,7 @@ export class CdkPrivateYumSampleStack extends Stack {
       'yum install -y httpd',
       'systemctl start httpd',
       'systemctl enable httpd',
-      "sh -c 'echo \"This is a sample website.\" > /var/www/html/index.html'",
+      'echo "This is a sample website." > /var/www/html/index.html',
     )
 
     // launch one instance per az
