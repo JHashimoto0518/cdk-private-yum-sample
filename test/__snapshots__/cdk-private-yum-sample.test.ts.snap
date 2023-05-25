@@ -1,0 +1,1006 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CdkPrivateYumSample matches the snapshot 1`] = `
+{
+  "Outputs": {
+    "TestCommand": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "curl http://",
+            {
+              "Fn::GetAtt": [
+                "Alb16C2F182",
+                "DNSName",
+              ],
+            },
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2",
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+    },
+  },
+  "Resources": {
+    "Alb16C2F182": {
+      "DependsOn": [
+        "WebVpcPublicSubnet1DefaultRoute909F1B3F",
+        "WebVpcPublicSubnet1RouteTableAssociation8A1BCD36",
+        "WebVpcPublicSubnet2DefaultRoute5148711F",
+        "WebVpcPublicSubnet2RouteTableAssociation278B5A36",
+      ],
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "deletion_protection.enabled",
+            "Value": "false",
+          },
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "AlbSg1155C1BE",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": [
+          {
+            "Ref": "WebVpcPublicSubnet1Subnet2846CCAB",
+          },
+          {
+            "Ref": "WebVpcPublicSubnet2Subnet81224206",
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "AlbHttpListener00C8B33E": {
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "AlbHttpListenerWebEc2TargetGroupDA6A2D08",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": {
+          "Ref": "Alb16C2F182",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "AlbHttpListenerWebEc2TargetGroupDA6A2D08": {
+      "Properties": {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+        ],
+        "TargetType": "instance",
+        "Targets": [
+          {
+            "Id": {
+              "Ref": "WebEc21341BEB35",
+            },
+          },
+          {
+            "Id": {
+              "Ref": "WebEc22DF74C8CD",
+            },
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "AlbSg1155C1BE": {
+      "Properties": {
+        "GroupDescription": "security group for alb",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "allow http traffic from anyone",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80,
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "WebEc21341BEB35": {
+      "DependsOn": [
+        "WebEc21InstanceRole78AEA6D1",
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeSize": 8,
+              "VolumeType": "gp3",
+            },
+          },
+        ],
+        "IamInstanceProfile": {
+          "Ref": "WebEc21InstanceProfileDA97F234",
+        },
+        "ImageId": {
+          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+        "InstanceType": "t2.micro",
+        "PropagateTagsToVolumeOnCreation": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "WebEc2Sg4729E030",
+              "GroupId",
+            ],
+          },
+        ],
+        "SubnetId": {
+          "Ref": "WebVpcPrivateSubnet1Subnet1C4CA8BF",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-ec2-1",
+          },
+        ],
+        "UserData": {
+          "Fn::Base64": "#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "This is a sample website." > /var/www/html/index.html",
+        },
+      },
+      "Type": "AWS::EC2::Instance",
+    },
+    "WebEc21InstanceProfileDA97F234": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "WebEc21InstanceRole78AEA6D1",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "WebEc21InstanceRole78AEA6D1": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AmazonSSMManagedInstanceCore",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-ec2-1",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "WebEc22DF74C8CD": {
+      "DependsOn": [
+        "WebEc22InstanceRole1BC208D2",
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeSize": 8,
+              "VolumeType": "gp3",
+            },
+          },
+        ],
+        "IamInstanceProfile": {
+          "Ref": "WebEc22InstanceProfileF597FEB6",
+        },
+        "ImageId": {
+          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+        "InstanceType": "t2.micro",
+        "PropagateTagsToVolumeOnCreation": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "WebEc2Sg4729E030",
+              "GroupId",
+            ],
+          },
+        ],
+        "SubnetId": {
+          "Ref": "WebVpcPrivateSubnet2SubnetEF6FCECA",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-ec2-2",
+          },
+        ],
+        "UserData": {
+          "Fn::Base64": "#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "This is a sample website." > /var/www/html/index.html",
+        },
+      },
+      "Type": "AWS::EC2::Instance",
+    },
+    "WebEc22InstanceProfileF597FEB6": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "WebEc22InstanceRole1BC208D2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "WebEc22InstanceRole1BC208D2": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AmazonSSMManagedInstanceCore",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-ec2-2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "WebEc2Sg4729E030": {
+      "Properties": {
+        "GroupDescription": "security group for a web server",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "WebEc2SgfromCdkPrivateYumSampleStackAlbSg680E5F80808C386A3D": {
+      "Properties": {
+        "Description": "allow http traffic from alb",
+        "FromPort": 80,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "WebEc2Sg4729E030",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "AlbSg1155C1BE",
+            "GroupId",
+          ],
+        },
+        "ToPort": 80,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "WebVpc46147648": {
+      "Properties": {
+        "CidrBlock": "172.16.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-vpc",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::VPC",
+    },
+    "WebVpcEc2MessagesEndpoint246BE54C": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "WebVpcEc2MessagesEndpointSecurityGroup6180330E",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.",
+              {
+                "Ref": "AWS::Region",
+              },
+              ".ec2messages",
+            ],
+          ],
+        },
+        "SubnetIds": [
+          {
+            "Ref": "WebVpcPrivateSubnet1Subnet1C4CA8BF",
+          },
+          {
+            "Ref": "WebVpcPrivateSubnet2SubnetEF6FCECA",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "WebVpcEc2MessagesEndpointSecurityGroup6180330E": {
+      "Properties": {
+        "GroupDescription": "CdkPrivateYumSampleStack/WebVpc/Ec2MessagesEndpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "WebVpc46147648",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "WebVpc46147648",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-vpc",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "WebVpcIGWFB314DC2": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-vpc",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::InternetGateway",
+    },
+    "WebVpcPrivateSubnet1RouteTable38FEE938": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PrivateSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "WebVpcPrivateSubnet1RouteTableAssociationD7E1B0EC": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "WebVpcPrivateSubnet1RouteTable38FEE938",
+        },
+        "SubnetId": {
+          "Ref": "WebVpcPrivateSubnet1Subnet1C4CA8BF",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "WebVpcPrivateSubnet1Subnet1C4CA8BF": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "172.16.2.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PrivateSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "WebVpcPrivateSubnet2RouteTable5EA21EDC": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PrivateSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "WebVpcPrivateSubnet2RouteTableAssociation00B0B3B7": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "WebVpcPrivateSubnet2RouteTable5EA21EDC",
+        },
+        "SubnetId": {
+          "Ref": "WebVpcPrivateSubnet2SubnetEF6FCECA",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "WebVpcPrivateSubnet2SubnetEF6FCECA": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "172.16.3.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PrivateSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "WebVpcPublicSubnet1DefaultRoute909F1B3F": {
+      "DependsOn": [
+        "WebVpcVPCGWFAC54190",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "WebVpcIGWFB314DC2",
+        },
+        "RouteTableId": {
+          "Ref": "WebVpcPublicSubnet1RouteTable1F24CACF",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "WebVpcPublicSubnet1RouteTable1F24CACF": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PublicSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "WebVpcPublicSubnet1RouteTableAssociation8A1BCD36": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "WebVpcPublicSubnet1RouteTable1F24CACF",
+        },
+        "SubnetId": {
+          "Ref": "WebVpcPublicSubnet1Subnet2846CCAB",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "WebVpcPublicSubnet1Subnet2846CCAB": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "172.16.0.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PublicSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "WebVpcPublicSubnet2DefaultRoute5148711F": {
+      "DependsOn": [
+        "WebVpcVPCGWFAC54190",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "WebVpcIGWFB314DC2",
+        },
+        "RouteTableId": {
+          "Ref": "WebVpcPublicSubnet2RouteTable01512D2E",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "WebVpcPublicSubnet2RouteTable01512D2E": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PublicSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "WebVpcPublicSubnet2RouteTableAssociation278B5A36": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "WebVpcPublicSubnet2RouteTable01512D2E",
+        },
+        "SubnetId": {
+          "Ref": "WebVpcPublicSubnet2Subnet81224206",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "WebVpcPublicSubnet2Subnet81224206": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "172.16.1.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "CdkPrivateYumSampleStack/WebVpc/PublicSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "WebVpcS3Endpoint8F8007C3": {
+      "Properties": {
+        "RouteTableIds": [
+          {
+            "Ref": "WebVpcPrivateSubnet1RouteTable38FEE938",
+          },
+          {
+            "Ref": "WebVpcPrivateSubnet2RouteTable5EA21EDC",
+          },
+        ],
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.",
+              {
+                "Ref": "AWS::Region",
+              },
+              ".s3",
+            ],
+          ],
+        },
+        "VpcEndpointType": "Gateway",
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "WebVpcSsmEndpoint892B8484": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "WebVpcSsmEndpointSecurityGroup35C7A2D9",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.",
+              {
+                "Ref": "AWS::Region",
+              },
+              ".ssm",
+            ],
+          ],
+        },
+        "SubnetIds": [
+          {
+            "Ref": "WebVpcPrivateSubnet1Subnet1C4CA8BF",
+          },
+          {
+            "Ref": "WebVpcPrivateSubnet2SubnetEF6FCECA",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "WebVpcSsmEndpointSecurityGroup35C7A2D9": {
+      "Properties": {
+        "GroupDescription": "CdkPrivateYumSampleStack/WebVpc/SsmEndpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "WebVpc46147648",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "WebVpc46147648",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-vpc",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "WebVpcSsmMessagesEndpoint7F32E832": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "WebVpcSsmMessagesEndpointSecurityGroup632B3A29",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.",
+              {
+                "Ref": "AWS::Region",
+              },
+              ".ssmmessages",
+            ],
+          ],
+        },
+        "SubnetIds": [
+          {
+            "Ref": "WebVpcPrivateSubnet1Subnet1C4CA8BF",
+          },
+          {
+            "Ref": "WebVpcPrivateSubnet2SubnetEF6FCECA",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "WebVpcSsmMessagesEndpointSecurityGroup632B3A29": {
+      "Properties": {
+        "GroupDescription": "CdkPrivateYumSampleStack/WebVpc/SsmMessagesEndpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "WebVpc46147648",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "WebVpc46147648",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "web-vpc",
+          },
+        ],
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "WebVpcVPCGWFAC54190": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "WebVpcIGWFB314DC2",
+        },
+        "VpcId": {
+          "Ref": "WebVpc46147648",
+        },
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
