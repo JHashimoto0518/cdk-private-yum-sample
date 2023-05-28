@@ -86,9 +86,7 @@ export class CdkPrivateYumSampleStack extends Stack {
           new ec2.Instance(this, `WebEc2${idx + 1}`, {
             instanceName: `web-ec2-${idx + 1}`,   // web-ec2-1, web-ec2-2, ...
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
-            machineImage: ec2.MachineImage.latestAmazonLinux({
-              generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-            }),
+            machineImage: ec2.MachineImage.latestAmazonLinux2023(),
             vpc,
             vpcSubnets: vpc.selectSubnets({
               subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
