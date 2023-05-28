@@ -250,8 +250,8 @@ exports[`CdkPrivateYumSample matches the snapshot 1`] = `
           {
             "DeviceName": "/dev/xvda",
             "Ebs": {
+              "Encrypted": true,
               "VolumeSize": 8,
-              "VolumeType": "gp3",
             },
           },
         ],
@@ -355,8 +355,8 @@ echo "This is a sample website." > /var/www/html/index.html",
           {
             "DeviceName": "/dev/xvda",
             "Ebs": {
+              "Encrypted": true,
               "VolumeSize": 8,
-              "VolumeType": "gp3",
             },
           },
         ],

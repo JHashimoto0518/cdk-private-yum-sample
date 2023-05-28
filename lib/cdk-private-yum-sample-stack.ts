@@ -98,7 +98,7 @@ export class CdkPrivateYumSampleStack extends Stack {
               {
                 deviceName: '/dev/xvda',
                 volume: ec2.BlockDeviceVolume.ebs(8, {
-                  volumeType: ec2.EbsDeviceVolumeType.GP3,
+                  encrypted: true
                 }),
               },
             ],
@@ -131,7 +131,6 @@ export class CdkPrivateYumSampleStack extends Stack {
       port: 80
     })
 
-    // output test command
     new CfnOutput(this, 'TestCommand', {
       value: `curl http://${alb.loadBalancerDnsName}`
     })
