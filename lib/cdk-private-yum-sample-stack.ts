@@ -26,6 +26,7 @@ export class CdkPrivateYumSampleStack extends Stack {
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED
         }
       ],
+      restrictDefaultSecurityGroup: true
     });
 
     // add private endpoints for session manager
