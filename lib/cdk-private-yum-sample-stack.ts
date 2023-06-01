@@ -26,7 +26,8 @@ export class CdkPrivateYumSampleStack extends Stack {
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED
         }
       ],
-      // remove all rules from default security group, See: https://docs.aws.amazon.com/ja_jp/config/latest/developerguide/vpc-default-security-group-closed.html
+      // remove all rules from default security group
+      // See: https://docs.aws.amazon.com/config/latest/developerguide/vpc-default-security-group-closed.html
       restrictDefaultSecurityGroup: true
     });
 
